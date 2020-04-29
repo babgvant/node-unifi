@@ -27,9 +27,13 @@ request = request.defaults({ jar: true,
                              strictSSL: false
                           });
 
-var Controller = function(hostname, port)
+var Controller = function(hostname, port, isUDM)
 {
   var _self = this;
+  _self.isUDM = false;
+  if(isUDM){
+    _self.isUDM = isUDM;
+  }
 
   /** INIT CODE **/
 
@@ -46,7 +50,11 @@ var Controller = function(hostname, port)
    */
   _self.login = function(username, password, cb)
   {
-    _self._request('/api/login', { username: username, password: password }, null, cb);
+    let loginUri = '/api/login';
+    if(_self.isUDM){
+      loginUri = '/api/auth/login';
+    }
+    _self._request(loginUri, { username: username, password: password }, null, cb);
   };
 
   /**
@@ -54,7 +62,11 @@ var Controller = function(hostname, port)
    */
   _self.logout = function(cb)
   {
-    _self._request('/api/logout', {}, null, cb);
+    let logoutUri = '/api/logout';
+    if(_self.isUDM){
+      loginUri = '/api/auth/logout';
+    }
+    _self._request(logoutUri, {}, null, cb);
   };
 
   /**
@@ -1389,8 +1401,13 @@ var Controller = function(hostname, port)
     var count = 0;
     var results = [];
     async.whilst(
-      function() { return count < proc_sites.length; },
+      function(callbackFunction) { 
+        callbackFunction(null, count < proc_sites.length); 
+      },
       function(callback) {
+        if(_self.isUDM && url.indexOf('/api/s') == 0){
+          url = '/proxy/network' + url;
+        }
         var reqfunc;
         var reqjson = {url: _self._baseurl + url.replace('<SITE>', proc_sites[count])};
         var req;

@@ -17,8 +17,8 @@
     "url": "git+https://github.com/jens-maus/node-unifi.git"
   },
   "dependencies": {
-    "request": "^2.69.0",
-    "async": "^3.0.1"
+    "async": "^3.2.0",
+    "request": "^2.69.0"
   },
   "main": "unifi.js",
   "scripts": {
